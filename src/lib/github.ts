@@ -117,7 +117,12 @@ function authHeaders() {
   return { Authorization: `bearer ${token}`, "User-Agent": "is-it-free" };
 }
 
-async function gql<T>(query: string, variables: Record<string, unknown>): Promise<T> {
+async function gql<T>(
+  query: string,
+  variables: Record<string, unknown>,
+  /** Return partial data when only some aliased issues are missing (e.g. they're PRs). */
+  { allowMissing = false } = {},
+): Promise<T> {
   const res = await fetch("https://api.github.com/graphql", {
     method: "POST",
     headers: { ...authHeaders(), "Content-Type": "application/json" },
@@ -128,6 +133,9 @@ async function gql<T>(query: string, variables: Record<string, unknown>): Promis
   if (!res.ok) throw new GitHubError(`GitHub API error ${res.status}`);
   const json = (await res.json()) as { data?: T; errors?: { message: string; type?: string }[] };
   if (json.errors?.length) {
+    const onlyMissingItems =
+      allowMissing && json.data && json.errors.every((e) => e.type === "NOT_FOUND" && (e as { path?: string[] }).path?.length === 2);
+    if (onlyMissingItems) return json.data as T;
     const notFound = json.errors.find((e) => e.type === "NOT_FOUND");
     if (notFound) throw new GitHubError("Repository or issue not found (or it's private).", 404);
     if (json.errors.some((e) => e.type === "RATE_LIMITED")) {
@@ -228,6 +236,40 @@ export async function fetchSingleIssue(owner: string, name: string, number: numb
   const { issue, ...repo } = data.repository;
   if (!issue) throw new GitHubError(`Issue #${number} not found (it may be a pull request).`, 404);
   return { repo, issue };
+}
+
+/**
+ * Fetch specific issues by number (for the extension's list-page badges).
+ * Pull requests and missing numbers are skipped. Closed issues are returned
+ * with their state so the caller can drop them.
+ */
+export async function fetchIssuesByNumber(
+  owner: string,
+  name: string,
+  numbers: number[],
+  needsBodies: (issue: Omit<RawIssue, "timelineItems">) => boolean,
+) {
+  if (numbers.length === 0) return [];
+  const aliased = (fields: string) => numbers.map((n) => `i${n}: issue(number: ${n}) { ${fields} }`).join("\n");
+  const query = (fields: string, extra = "") =>
+    `query($owner: String!, $name: String!) { repository(owner: $owner, name: $name) { ${aliased(fields)} } } ${extra}`;
+  type Aliased<T> = { repository: Record<string, T | null> };
+  type Meta = Omit<RawIssue, "timelineItems"> & { state: string };
+
+  // Same split as fetchRepoIssues: comments and timelines in parallel, REST bodies
+  // as soon as the comment list is in.
+  const metaWithBodies = gql<Aliased<Meta>>(query(`state ${ISSUE_META}`), { owner, name }, { allowMissing: true }).then(async (d) => {
+    const issues = Object.values(d.repository).filter((i): i is Meta => i !== null && i.state === "OPEN");
+    await hydrateBodies(owner, name, issues.filter(needsBodies));
+    return issues;
+  });
+  const timelines = gql<Aliased<Pick<RawIssue, "number" | "timelineItems">>>(
+    query(`number ${ISSUE_TIMELINE}`, PR_FRAGMENT),
+    { owner, name },
+    { allowMissing: true },
+  );
+  const [meta, tl] = await Promise.all([metaWithBodies, timelines]);
+  return meta.map((i) => ({ ...i, timelineItems: tl.repository[`i${i.number}`]?.timelineItems ?? { nodes: [] } }));
 }
 
 interface RestComment {

@@ -19,7 +19,7 @@ It also estimates **how quickly maintainers reply**, so you know whether a repo 
 ## Chrome extension
 
 The `extension/` folder has a Chrome extension that puts the badge **right on GitHub issue pages**,
-next to the Open label. Hover over it to see why, and click it to open the full report.
+next to the Open label, and on **issue list pages** next to every title. Hover over a badge to see why, and click it to open the full report.
 
 **Install (developer mode):**
 1. Download or clone this repo.
@@ -86,7 +86,7 @@ Next.js 16 (App Router, Cache Components) · React 19 · TypeScript · Tailwind 
 
 - [ ] Search across many repos by language ("free Python issues right now")
 - [x] Browser extension that shows the badge directly on GitHub issue pages
-- [ ] Extension: badges on issue *list* pages
+- [x] Extension: badges on issue *list* pages
 - [ ] Publish the extension to the Chrome Web Store
 - [ ] LLM fallback for claims the regex misses
 - [ ] Open Graph images for shared links

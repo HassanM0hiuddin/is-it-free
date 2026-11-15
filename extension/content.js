@@ -115,18 +115,110 @@
     });
   }
 
+  // ---------------------------------------------------------------------------
+  // Issue list pages: a compact badge after every issue title.
+  // ---------------------------------------------------------------------------
+  const ROW_CLASS = "iif-row";
+  const list = { repo: null, results: new Map(), pending: new Set(), queue: new Set(), timer: null };
+
+  /** "owner/repo" on /owner/repo/issues (any filters), otherwise null. */
+  function listRepoFromLocation() {
+    const m = location.pathname.match(/^\/([^/]+)\/([^/]+)\/issues\/?$/);
+    return m ? `${m[1]}/${m[2]}` : null;
+  }
+
+  function rowBadge(n, result) {
+    const attrs = { className: `${ROW_CLASS} iif-badge`, "data-iif-n": String(n) };
+    if (result === undefined) {
+      return el("span", { ...attrs, className: `${attrs.className} iif-loading iif-small`, title: "Is it free? Checking…" }, "…");
+    }
+    if (result.error) {
+      return el("span", { ...attrs, className: `${attrs.className} iif-error iif-small`, title: `Is it free? ${result.error}` }, "⚠");
+    }
+    const v = result.verdict;
+    const s = STATUS[v.status];
+    const tip = [`${s.label}: ${v.reason}`, ...v.details.map((d) => `• ${d}`)].join("\n");
+    return el(
+      "a",
+      { ...attrs, className: `${attrs.className} iif-${v.status}`, title: tip, href: `${SITE}/?q=${encodeURIComponent(result.url)}`, target: "_blank", rel: "noopener" },
+      `${s.emoji} ${s.label}`,
+    );
+  }
+
+  function flushQueue() {
+    list.timer = null;
+    const repo = list.repo;
+    const numbers = [...list.queue];
+    list.queue.clear();
+    if (!repo || numbers.length === 0) return;
+    numbers.forEach((n) => list.pending.add(n));
+    chrome.runtime.sendMessage({ type: "batch", repo, numbers }, (resp) => {
+      if (chrome.runtime.lastError) resp = { ok: false, error: chrome.runtime.lastError.message, issues: {} };
+      if (repo !== list.repo) return; // navigated to another repo meanwhile
+      for (const n of numbers) {
+        list.pending.delete(n);
+        // null = not an open issue (PR, closed…): show nothing.
+        list.results.set(n, resp.issues[n] || (resp.ok ? null : { error: resp.error }));
+      }
+      renderList();
+    });
+  }
+
+  function renderList() {
+    const repo = listRepoFromLocation();
+    if (!repo) {
+      document.querySelectorAll(`.${ROW_CLASS}`).forEach((b) => b.remove());
+      return;
+    }
+    if (repo !== list.repo) {
+      list.repo = repo;
+      list.results.clear();
+      list.pending.clear();
+      list.queue.clear();
+    }
+    for (const link of document.querySelectorAll('a[data-testid="issue-listitem-title-link"]')) {
+      const m = (link.getAttribute("href") || "").match(/github\.com\/([^/]+\/[^/]+)\/issues\/(\d+)|^\/([^/]+\/[^/]+)\/issues\/(\d+)/);
+      if (!m) continue;
+      const linkRepo = m[1] || m[3];
+      const n = Number(m[2] || m[4]);
+      if (linkRepo.toLowerCase() !== repo.toLowerCase()) continue;
+
+      const host = link.closest("h3") || link;
+      const existing = host.nextElementSibling?.classList.contains(ROW_CLASS) ? host.nextElementSibling : null;
+      const result = list.results.get(n);
+
+      if (result === undefined && !list.pending.has(n) && !list.queue.has(n)) {
+        list.queue.add(n);
+        // Collect rows rendered in the same burst into one request.
+        if (!list.timer) list.timer = setTimeout(flushQueue, 150);
+      }
+      const want = result === null ? null : result === undefined ? "loading" : result.error ? "error" : result.verdict.status;
+      const have = existing ? existing.dataset.iifState : null;
+      if (want === have && existing?.dataset.iifN === String(n)) continue;
+      existing?.remove();
+      if (want === null) continue;
+      const badge = rowBadge(n, result === undefined ? undefined : { ...result, url: `https://github.com/${repo}/issues/${n}` });
+      badge.dataset.iifState = want;
+      host.insertAdjacentElement("afterend", badge);
+    }
+  }
+
   // GitHub navigates without full page loads, and React re-renders can drop
-  // our node, so watch the DOM (throttled) and re-check.
+  // our nodes, so watch the DOM (throttled) and re-check.
+  const refresh = () => {
+    load();
+    renderList();
+  };
   let scheduled = false;
   new MutationObserver(() => {
     if (scheduled) return;
     scheduled = true;
     requestAnimationFrame(() => {
       scheduled = false;
-      load();
+      refresh();
     });
   }).observe(document.documentElement, { childList: true, subtree: true });
-  document.addEventListener("turbo:load", load);
-  window.addEventListener("popstate", load);
-  load();
+  document.addEventListener("turbo:load", refresh);
+  window.addEventListener("popstate", refresh);
+  refresh();
 })();
