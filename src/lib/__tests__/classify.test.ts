@@ -188,3 +188,20 @@ describe("repoHealth", () => {
     expect(repoHealth([issue()]).medianResponseDays).toBeNull();
   });
 });
+
+describe("free reason wording", () => {
+  it("doesn't say 'nobody assigned' when a maintainer is assigned", () => {
+    const v = classify(
+      {
+        number: 1, title: "t", url: "https://github.com/acme/app/issues/1", createdAt: "2026-10-01T00:00:00Z", updatedAt: "2026-10-01T00:00:00Z",
+        author: { login: "maint" }, authorAssociation: "MEMBER",
+        assignees: { nodes: [{ login: "maint" }] }, labels: { nodes: [] },
+        comments: { totalCount: 0, nodes: [] }, timelineItems: { nodes: [] },
+      },
+      new Date("2026-11-15T00:00:00Z"),
+      new Set(["maint"]),
+    );
+    expect(v.status).toBe("free");
+    expect(v.reason).not.toMatch(/nobody assigned/);
+  });
+});

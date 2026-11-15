@@ -4,6 +4,8 @@
 
 **🔗 Live: https://is-it-free-pi.vercel.app**
 
+![Chrome extension adding Free / Stale claim / Taken badges to a GitHub issue list](docs/extension-list.jpg)
+
 New contributors find an issue labelled `good first issue`, dig into the codebase, and then find out
 someone claimed it three weeks ago in a comment, or a PR is already open. *Is it free?* reads the
 comments, assignees and linked pull requests for you, and gives every beginner issue a status:
@@ -29,6 +31,10 @@ next to the Open label, and on **issue list pages** next to every title. Hover o
 
 It uses the hosted API, so you don't need a GitHub token. Clicking the toolbar icon opens the web app
 for the repo you're viewing. The extension's tests run with the rest (`npm test`) and use jsdom against GitHub's issue-page markup.
+
+| Issue page (hover for the reason) | Web app |
+| --- | --- |
+| ![Badge and hover card on a GitHub issue](docs/extension-issue.jpg) | ![Is it free? web app results](docs/web-app.jpg) |
 
 ## Usage
 

@@ -51,10 +51,8 @@
 
 .iif-card {
   display: none;
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  z-index: 100;
+  position: fixed; /* escapes GitHub's overflow:hidden header; positioned by content.js */
+  z-index: 1000;
   width: 320px;
   padding: 12px;
   border-radius: 8px;

@@ -78,6 +78,17 @@
     card.append(el("span", { className: "iif-foot" }, "Is it free? · heuristics, not magic"));
 
     wrap.append(badge, card);
+    // GitHub's header clips overflowing children, so the card is position:fixed
+    // and placed under the badge whenever it opens.
+    const place = () => {
+      const r = badge.getBoundingClientRect();
+      const width = Math.min(320, window.innerWidth - 16);
+      card.style.top = `${r.bottom + 6}px`;
+      card.style.left = `${Math.max(8, Math.min(r.left, window.innerWidth - width - 8))}px`;
+      card.style.width = `${width}px`;
+    };
+    wrap.addEventListener("mouseenter", place);
+    wrap.addEventListener("focusin", place);
     return wrap;
   }
 

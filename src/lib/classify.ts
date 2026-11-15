@@ -235,7 +235,10 @@ export function classify(issue: RawIssue, now = new Date(), maintainers = knownM
   }
   return {
     status: "free",
-    reason: issue.comments.totalCount === 0 ? "No comments, no PRs, nobody assigned" : "Nobody has claimed it or opened a PR",
+    reason:
+      issue.comments.totalCount > 0 ? "Nobody has claimed it or opened a PR"
+      : staffAssignees.length > 0 ? "No comments or PRs yet"
+      : "No comments, no PRs, nobody assigned",
     details,
     claimants,
     linkedPRs,
