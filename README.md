@@ -48,6 +48,9 @@ Results have shareable links: `/?q=rust-lang/rust`.
 
 ## How it works
 
+> 📘 For a full walkthrough (architecture, end-to-end flows, tools and design decisions), see **[docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md)**.
+
+
 1. **Find the beginner labels.** Repos spell them differently (`good first issue`, `E-easy`,
    `Difficulty: starter`, `first-timers-only`, `junior job`, `up-for-grabs`…), so labels are searched by
    keyword and filtered with a regex. Labels like `good first issue (taken)` are treated as a *taken* signal instead.
