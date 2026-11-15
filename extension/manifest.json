@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Is it free?",
+  "version": "0.1.0",
+  "description": "Shows whether a GitHub issue is free, has a stale claim, or is already taken, right on the issue page.",
+  "icons": { "16": "icons/16.png", "48": "icons/48.png", "128": "icons/128.png" },
+  "background": { "service_worker": "background.js" },
+  "host_permissions": ["https://is-it-free-pi.vercel.app/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": { "default_title": "Is it free?", "default_icon": { "16": "icons/16.png", "48": "icons/48.png" } },
+  "homepage_url": "https://is-it-free-pi.vercel.app"
+}

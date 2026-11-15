@@ -1,0 +1,90 @@
+/* Uses GitHub's own Primer color variables so it matches light and dark themes. */
+.iif-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  vertical-align: middle;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.iif-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none !important;
+  border: 1px solid transparent;
+}
+
+.iif-free {
+  color: var(--fgColor-success, #1a7f37);
+  background: var(--bgColor-success-muted, #dafbe1);
+  border-color: var(--borderColor-success-muted, #4ac26b66);
+}
+.iif-stale {
+  color: var(--fgColor-attention, #9a6700);
+  background: var(--bgColor-attention-muted, #fff8c5);
+  border-color: var(--borderColor-attention-muted, #d4a72c66);
+}
+.iif-taken {
+  color: var(--fgColor-danger, #d1242f);
+  background: var(--bgColor-danger-muted, #ffebe9);
+  border-color: var(--borderColor-danger-muted, #ff818266);
+}
+.iif-loading,
+.iif-error {
+  color: var(--fgColor-muted, #59636e);
+  background: var(--bgColor-muted, #f6f8fa);
+  border-color: var(--borderColor-default, #d1d9e0);
+}
+.iif-loading {
+  animation: iif-pulse 1.2s ease-in-out infinite;
+}
+@keyframes iif-pulse {
+  50% { opacity: 0.5; }
+}
+
+.iif-card {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  width: 320px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--borderColor-default, #d1d9e0);
+  background: var(--overlay-bgColor, var(--bgColor-default, #fff));
+  color: var(--fgColor-default, #1f2328);
+  box-shadow: var(--shadow-floating-small, 0 6px 18px rgba(0, 0, 0, 0.15));
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+  white-space: normal;
+}
+.iif-wrap:hover .iif-card,
+.iif-wrap:focus-within .iif-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.iif-card ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--fgColor-muted, #59636e);
+  font-size: 12px;
+}
+.iif-health {
+  color: var(--fgColor-muted, #59636e);
+  font-size: 12px;
+}
+.iif-foot {
+  margin-top: 2px;
+  color: var(--fgColor-muted, #59636e);
+  font-size: 11px;
+}

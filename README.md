@@ -16,6 +16,20 @@ comments, assignees and linked pull requests for you, and gives every beginner i
 
 It also estimates **how quickly maintainers reply**, so you know whether a repo is worth your time.
 
+## Chrome extension
+
+The `extension/` folder has a Chrome extension that puts the badge **right on GitHub issue pages**,
+next to the Open label. Hover over it to see why, and click it to open the full report.
+
+**Install (developer mode):**
+1. Download or clone this repo.
+2. Open `chrome://extensions` and switch on **Developer mode** (top right).
+3. Click **Load unpacked** and choose the `extension` folder.
+4. Open any GitHub issue.
+
+It uses the hosted API, so you don't need a GitHub token. Clicking the toolbar icon opens the web app
+for the repo you're viewing. The extension's tests run with the rest (`npm test`) and use jsdom against GitHub's issue-page markup.
+
 ## Usage
 
 Paste any of these:
@@ -71,6 +85,8 @@ Next.js 16 (App Router, Cache Components) · React 19 · TypeScript · Tailwind 
 ## Roadmap
 
 - [ ] Search across many repos by language ("free Python issues right now")
-- [ ] Browser extension that shows the badge directly on GitHub issue pages
+- [x] Browser extension that shows the badge directly on GitHub issue pages
+- [ ] Extension: badges on issue *list* pages
+- [ ] Publish the extension to the Chrome Web Store
 - [ ] LLM fallback for claims the regex misses
 - [ ] Open Graph images for shared links
