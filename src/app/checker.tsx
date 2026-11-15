@@ -140,7 +140,11 @@ export default function Checker({
               {data.repo.language && ` · ${data.repo.language}`}
             </span>
           </div>
-          <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-400">💬 {data.health.summary}</p>
+          {data.health.medianResponseDays !== null ? (
+            <p className="mb-6 text-sm text-neutral-600 dark:text-neutral-400">💬 {data.health.summary}</p>
+          ) : (
+            <div className="mb-6" />
+          )}
 
           {data.closed && (
             <p className="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm">This issue is already closed.</p>
