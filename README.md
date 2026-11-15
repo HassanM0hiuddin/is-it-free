@@ -2,6 +2,8 @@
 
 **Check whether a "good first issue" is actually available before you spend an hour on it.**
 
+**🔗 Live: https://is-it-free-pi.vercel.app**
+
 New contributors find an issue labelled `good first issue`, dig into the codebase, and then find out
 someone claimed it three weeks ago in a comment, or a PR is already open. *Is it free?* reads the
 comments, assignees and linked pull requests for you, and gives every beginner issue a status:
@@ -53,7 +55,8 @@ npm run dev                  # http://localhost:3000
 npm test                     # unit tests for the classifier and parser
 ```
 
-The token only needs **public read access**: a fine-grained token with no extra permissions works.
+Use a **classic** token with **no scopes ticked** (it can then only read public data). Don't use a
+fine-grained token: GitHub hides cross-referenced PR events from them, so linked PRs would go undetected.
 If you use the GitHub CLI, you can skip the file with `GITHUB_TOKEN=$(gh auth token) npm run dev`.
 
 ## Deploying

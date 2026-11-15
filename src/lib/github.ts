@@ -103,10 +103,16 @@ export class GitHubError extends Error {
   }
 }
 
+let warnedFineGrained = false;
+
 function authHeaders() {
   const token = process.env.GITHUB_TOKEN;
   if (!token) {
     throw new GitHubError("Server is missing GITHUB_TOKEN. Add it to .env.local (see README).", 500);
+  }
+  if (token.startsWith("github_pat_") && !warnedFineGrained) {
+    warnedFineGrained = true;
+    console.warn("GITHUB_TOKEN is fine-grained: GitHub hides linked-PR events from these tokens. Use a classic token with no scopes.");
   }
   return { Authorization: `bearer ${token}`, "User-Agent": "is-it-free" };
 }
